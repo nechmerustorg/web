@@ -1,0 +1,69 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&display=swap');
+
+:root {
+  --bg: #0a0e1a;
+  --card: #111827;
+  --border: #1e2d45;
+  --accent: #00d4ff;
+  --green: #00ff88;
+  --orange: #ff8800;
+  --red: #ff3355;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg);
+  color: #e2e8f0;
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  min-height: 100vh;
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--card); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #2d3f5a; }
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.badge-urgentni { background: rgba(255,51,85,0.15); color: #ff3355; border: 1px solid rgba(255,51,85,0.3); }
+.badge-vysoka { background: rgba(255,136,0,0.15); color: #ff8800; border: 1px solid rgba(255,136,0,0.3); }
+.badge-normalni { background: rgba(0,212,255,0.1); color: #00d4ff; border: 1px solid rgba(0,212,255,0.2); }
+.badge-nizka { background: rgba(74,85,104,0.3); color: #a0aec0; border: 1px solid rgba(74,85,104,0.4); }
+.badge-ok { background: rgba(0,255,136,0.1); color: #00ff88; border: 1px solid rgba(0,255,136,0.2); }
+.badge-docházi { background: rgba(255,136,0,0.15); color: #ff8800; border: 1px solid rgba(255,136,0,0.3); }
+.badge-kritický { background: rgba(255,51,85,0.15); color: #ff3355; border: 1px solid rgba(255,51,85,0.3); }
+
+.glow-accent { box-shadow: 0 0 20px rgba(0,212,255,0.1); }
+.glow-green { box-shadow: 0 0 20px rgba(0,255,136,0.1); }
+.glow-red { box-shadow: 0 0 20px rgba(255,51,85,0.1); }
+
+.progress-bar {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--border);
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+.pulse-dot { animation: pulse-dot 2s infinite; }
