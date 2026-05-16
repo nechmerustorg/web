@@ -76,6 +76,9 @@ export async function initDb() {
       vytvoreno TIMESTAMP DEFAULT NOW()
     )
   `
+  // Migrace: přidej gmail_id pokud chybí (existující tabulky bez tohoto sloupce)
+  await sql`ALTER TABLE emaily ADD COLUMN IF NOT EXISTS gmail_id TEXT`
+  await sql`CREATE UNIQUE INDEX IF NOT EXISTS emaily_gmail_id_unique ON emaily(gmail_id)`
 }
 
 export async function seedDb() {
@@ -96,7 +99,7 @@ export async function seedDb() {
       ('veterina@praxe.cz', 'URGENTNÍ: Zdravotní kontrola – koza Bělka', 'urgentní', 'Dobrý den, je nutné co nejdříve provést veterinární prohlídku kozy Bělky. Vykazuje příznaky respiračního onemocnění.', '2025-05-16 08:15', 'Dobrý den, děkujeme za upozornění. Termín potvrdíme do dnešního odpoledne.'),
       ('darce@gmail.com', 'Zájem o virtuální adopci – ovce', 'vysoká', 'Dobrý den, rád bych adoptoval jednu z vašich ovcí. Jak probíhá virtuální adopce?', '2025-05-16 09:30', 'Dobrý den, velmi nás těší váš zájem! Virtuální adopce obnáší měsíční příspěvek 300 Kč...'),
       ('info@nadacecez.cz', 'Grant – výzva k podání žádosti 2025', 'vysoká', 'Vážení, připomínáme otevřenou výzvu k podání žádostí o grant. Deadline je 30. 6. 2025.', '2025-05-15 14:00', NULL),
-      ('dobrovolnik@seznam.cz', 'Zájem o dobrovolnictví', 'normální', 'Zdravím, mám zájem přijít pomoci na ranč. Jsem k dispozici každý víkend.', '2025-05-15 11:20', 'Zdravím, skvělé! Přijďte kdykoliv v sobotu od 9:00...'),
+      ('dobrovolnik@seznam.cz', 'Zájem o dobrovolnictví', 'normální', 'Zdravím, mám zájem přijít pomoci na ranč. Jsem k dispozici každý víkend.', '2025-05-15 11:20', 'Zdravím, skvost! Přijďte kdykoliv v sobotu od 9:00...'),
       ('noviny@region.cz', 'Rozhovor pro regionální noviny', 'normální', 'Dobrý den, rádi bychom vás představili v naší rubrice Lidé regionu. Máte zájem?', '2025-05-14 16:45', NULL),
       ('krmivo@agro.cz', 'Potvrzení objednávky sena', 'nízká', 'Potvrzujeme přijetí objednávky 500 kg sena. Dodání do 3 pracovních dnů.', '2025-05-14 10:00', NULL)
     `
@@ -117,11 +120,11 @@ export async function seedDb() {
   const { rowCount: zvc } = await sql`SELECT 1 FROM zvirata LIMIT 1`
   if (!zvc) {
     await sql`INSERT INTO zvirata (jmeno, druh, status, popis, datum_prijeti) VALUES
-      ('Bělka', 'koza', 'v azylu', 'Bílá koza nalezená u silnice', '2024-03-15'),
+      ('Bělka', 'koza', 'v azylu', 'Bílá koza nalezena u silnice', '2024-03-15'),
       ('Ferda', 'prase', 'v azylu', 'Záchrana z farmy', '2024-01-20'),
       ('Lucie', 'ovce', 'adoptována', 'Virtuálně adoptována rodinou Novák', '2023-11-10'),
       ('Max', 'pes', 'v azylu', 'Nalezen bez majitele', '2024-05-01'),
-      ('Kvítko', 'kůň', 'v azylu', 'Záchrana z týrání', '2023-09-05')
+      ('Kvítko', 'kůň', 'v azylu', 'Záchrana z týraní', '2023-09-05')
     `
   }
 
