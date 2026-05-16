@@ -3,6 +3,8 @@ import { sql } from '@vercel/postgres'
 import { initDb } from '@/lib/db'
 import { getCalendar } from '@/lib/google'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET() {
   if (!process.env.GOOGLE_CLIENT_ID) {
     return NextResponse.json({ error: 'Kalendář není nakonfigurován — nastavte GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REFRESH_TOKEN' }, { status: 503 })
@@ -48,6 +50,10 @@ export async function GET() {
           aktualizovano = NOW()
       `
       synced++
+    }
+
+    if (events.length > 0) {
+      await sql`DELETE FROM kalendar WHERE google_id IS NULL`
     }
 
     return NextResponse.json({ ok: true, synced, celkem: events.length })
