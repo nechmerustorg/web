@@ -3,6 +3,8 @@ import { sql } from '@vercel/postgres'
 import { initDb } from '@/lib/db'
 import { getGmail, klasifikujPrioritu } from '@/lib/google'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET() {
   if (!process.env.GOOGLE_CLIENT_ID) {
     return NextResponse.json({ error: 'Gmail není nakonfigurován — nastavte GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REFRESH_TOKEN' }, { status: 503 })
@@ -42,16 +44,18 @@ export async function GET() {
       const priorita = klasifikujPrioritu(od, predmet)
       const obsah = threadRes.data.messages?.[0]?.snippet || ''
 
-      try {
-        await sql`
-          INSERT INTO emaily (gmail_id, od, predmet, priorita, obsah, datum)
-          VALUES (${gmailId}, ${od}, ${predmet}, ${priorita}, ${obsah}, ${datum})
-          ON CONFLICT (gmail_id) DO NOTHING
-        `
-        synced++
-      } catch {
-        preskoceno++
-      }
+      const { rowCount } = await sql`
+        INSERT INTO emaily (gmail_id, od, predmet, priorita, obsah, datum)
+        VALUES (${gmailId}, ${od}, ${predmet}, ${priorita}, ${obsah}, ${datum})
+        ON CONFLICT (gmail_id) DO NOTHING
+      `
+      if (rowCount && rowCount > 0) synced++
+      else preskoceno++
+    }
+
+    // Smaž demo emaily (bez gmail_id) pokud existují reálná data
+    if (synced > 0 || preskoceno > 0) {
+      await sql`DELETE FROM emaily WHERE gmail_id IS NULL`
     }
 
     return NextResponse.json({ ok: true, synced, preskoceno, celkem: threads.length })
