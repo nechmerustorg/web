@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getDb, initDb } from '@/lib/db'
+import { sql } from '@vercel/postgres'
+import { initDb } from '@/lib/db'
 
 export async function GET() {
   try {
-    initDb()
-    const db = getDb()
-    const granty = db.prepare('SELECT * FROM granty ORDER BY CASE priorita WHEN \'vysoká\' THEN 1 WHEN \'střední\' THEN 2 ELSE 3 END, vytvoreno DESC').all()
-    db.close()
-    return NextResponse.json(granty)
+    await initDb()
+    const { rows } = await sql`
+      SELECT * FROM granty
+      ORDER BY CASE priorita WHEN 'vysoká' THEN 1 WHEN 'střední' THEN 2 ELSE 3 END, vytvoreno DESC
+    `
+    return NextResponse.json(rows)
   } catch (e) {
     return NextResponse.json({ error: String(e) }, { status: 500 })
   }
@@ -15,14 +17,13 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const data = await req.json()
-    const db = getDb()
-    const result = db.prepare(`
+    const d = await req.json()
+    const { rows } = await sql`
       INSERT INTO granty (nazev, poskytovatel, castka, deadline, status, popis, priorita)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-    `).run(data.nazev, data.poskytovatel, data.castka, data.deadline, data.status || 'nový', data.popis, data.priorita || 'střední')
-    db.close()
-    return NextResponse.json({ id: result.lastInsertRowid })
+      VALUES (${d.nazev}, ${d.poskytovatel}, ${d.castka}, ${d.deadline}, ${d.status ?? 'nový'}, ${d.popis}, ${d.priorita ?? 'střední'})
+      RETURNING id
+    `
+    return NextResponse.json({ id: rows[0].id })
   } catch (e) {
     return NextResponse.json({ error: String(e) }, { status: 500 })
   }
@@ -31,9 +32,7 @@ export async function POST(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   try {
     const { id, status } = await req.json()
-    const db = getDb()
-    db.prepare('UPDATE granty SET status = ? WHERE id = ?').run(status, id)
-    db.close()
+    await sql`UPDATE granty SET status = ${status} WHERE id = ${id}`
     return NextResponse.json({ ok: true })
   } catch (e) {
     return NextResponse.json({ error: String(e) }, { status: 500 })
