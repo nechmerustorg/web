@@ -18,6 +18,7 @@ export async function initDb() {
   await sql`
     CREATE TABLE IF NOT EXISTS emaily (
       id SERIAL PRIMARY KEY,
+      gmail_id TEXT UNIQUE,
       od TEXT NOT NULL,
       predmet TEXT NOT NULL,
       priorita TEXT DEFAULT 'normální',
@@ -26,6 +27,18 @@ export async function initDb() {
       odpovezeno INTEGER DEFAULT 0,
       datum TEXT DEFAULT to_char(NOW(), 'YYYY-MM-DD HH24:MI'),
       navrh_odpovedi TEXT
+    )
+  `
+  await sql`
+    CREATE TABLE IF NOT EXISTS kalendar (
+      id SERIAL PRIMARY KEY,
+      google_id TEXT UNIQUE,
+      nazev TEXT NOT NULL,
+      zacatek TEXT,
+      konec TEXT,
+      misto TEXT,
+      popis TEXT,
+      aktualizovano TIMESTAMP DEFAULT NOW()
     )
   `
   await sql`

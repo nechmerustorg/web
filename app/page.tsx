@@ -7,6 +7,7 @@ import EmailyPanel from '@/components/EmailyPanel'
 import ZasobyPanel from '@/components/ZasobyPanel'
 import UkolyPanel from '@/components/UkolyPanel'
 import ZvirataPanel from '@/components/ZvirataPanel'
+import KalendarPanel from '@/components/KalendarPanel'
 import StatCard from '@/components/StatCard'
 
 interface Stats {
@@ -30,7 +31,7 @@ function Clock() {
 export default function Dashboard() {
   const [seeded, setSeeded] = useState(false)
   const [stats, setStats] = useState<Stats>({ emaily_neprectene: 0, zasoby_kriticke: 0, granty_nove: 0, ukoly_aktivni: 0 })
-  const [activeTab, setActiveTab] = useState<'prehled' | 'granty' | 'emaily' | 'zasoby' | 'zvirata' | 'ukoly'>('prehled')
+  const [activeTab, setActiveTab] = useState<'prehled' | 'granty' | 'emaily' | 'zasoby' | 'kalendar' | 'zvirata' | 'ukoly'>('prehled')
 
   useEffect(() => {
     fetch('/api/seed').then(() => setSeeded(true))
@@ -58,6 +59,7 @@ export default function Dashboard() {
     { id: 'granty', label: 'Granty', badge: stats.granty_nove },
     { id: 'emaily', label: 'E-maily', badge: stats.emaily_neprectene },
     { id: 'zasoby', label: 'Zásoby', badge: stats.zasoby_kriticke, badgeColor: 'bg-[#ff8800]' },
+    { id: 'kalendar', label: 'Kalendář' },
     { id: 'zvirata', label: 'Zvířata' },
     { id: 'ukoly', label: 'Úkoly', badge: stats.ukoly_aktivni },
   ] as const
@@ -151,6 +153,7 @@ export default function Dashboard() {
               <ZasobyPanel />
               <UkolyPanel />
               <ZvirataPanel />
+              <KalendarPanel />
 
               {/* Info panel */}
               <div className="card p-4 flex flex-col gap-3">
@@ -191,6 +194,7 @@ export default function Dashboard() {
         {activeTab === 'granty' && <div className="max-w-2xl"><GrantyPanel /></div>}
         {activeTab === 'emaily' && <div className="max-w-2xl"><EmailyPanel /></div>}
         {activeTab === 'zasoby' && <div className="max-w-2xl"><ZasobyPanel /></div>}
+        {activeTab === 'kalendar' && <div className="max-w-2xl"><KalendarPanel /></div>}
         {activeTab === 'zvirata' && <div className="max-w-2xl"><ZvirataPanel /></div>}
         {activeTab === 'ukoly' && <div className="max-w-2xl"><UkolyPanel /></div>}
       </main>
