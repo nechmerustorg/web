@@ -76,6 +76,9 @@ export async function initDb() {
       vytvoreno TIMESTAMP DEFAULT NOW()
     )
   `
+  // Migrace: přidej gmail_id pokud chybí (existující tabulky bez tohoto sloupce)
+  await sql`ALTER TABLE emaily ADD COLUMN IF NOT EXISTS gmail_id TEXT`
+  await sql`CREATE UNIQUE INDEX IF NOT EXISTS emaily_gmail_id_unique ON emaily(gmail_id)`
 }
 
 export async function seedDb() {
